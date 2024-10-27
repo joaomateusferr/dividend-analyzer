@@ -30,10 +30,10 @@ $Asets = [
         'Type' => 'FII',
     ],
     'VALE3' => [
-        'Type' => 'AÇÃO',
+        'Type' => 'ACAO',
     ],
     'BBDC4' => [
-        'Type' => 'AÇÃO',
+        'Type' => 'ACAO',
     ],
     'NDIV11' => [
         'Type' => 'ETF',
@@ -60,13 +60,27 @@ $Asets = [
 
 $Investidor10AsetTypeMap = [
     'FII' => 'fiis',
-    'AÇÃO' => 'acoes',
+    'ACAO' => 'acoes',
     'ETF-US' => 'etfs-global',
     'ETF' => 'etfs',
 ];
 
+$Taxes = [
+    'ACAO' => [
+        'JSCP' => 0.15,
+    ],
+    'ETF' => [
+        'Dividendos' => 0.15,
+    ],
+    'EETF-US' => [
+        'Dividendos' => 0.3,
+    ],
+
+];
+
 $Result = [];
 $TimeLimit = strtotime("-1 year");
+$Net = true;
 
 foreach($Asets as $Ticker => $Infos){
 
@@ -97,20 +111,22 @@ foreach($Asets as $Ticker => $Infos){
         $TableData[$Index]['Pagamento'] = strtotime($TableData[$Index]['Pagamento'].' 00:00:00');
         $TableData[$Index]['Valor'] = (float) str_replace(",",".",$TableData[$Index]['Valor']);
 
+        if($Net){   //discount taxes
+
+        }
+
         if($TableData[$Index]['Pagamento'] >= $TimeLimit && $TableData[$Index]['Pagamento'] <= time()){
             $Result[$Ticker]['AnnualPayment'] = $Result[$Ticker]['AnnualPayment'] + $TableData[$Index]['Valor'];
         }
 
     }
 
-    $Result[$Ticker]['MonthlyPayment'] = $Result[$Ticker]['AnnualPayment']/12;
-
-    sleep(1);
+    sleep(rand(0, 3));
 
 }
 
 foreach($Result as $Ticker => $Infos){
-    echo $Ticker,' - '.$Infos['AnnualPayment'].' - '.$Infos['MonthlyPayment']."\n";
+    echo $Ticker,' - '.$Infos['AnnualPayment']."\n";
 }
 
 

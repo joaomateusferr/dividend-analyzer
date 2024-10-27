@@ -1,38 +1,117 @@
 <?php
 
-$Page = getPage('https://investidor10.com.br/etfs-global/sphd/');
-$TableData = parseTable($Page, "@class, 'table-dividends-history'");
+$Asets = [
 
-$Limit = strtotime("-1 year");
+    'HGBS11' => [
+        'Type' => 'FII',
+    ],
+    'KNRI11' => [
+        'Type' => 'FII',
+    ],
+    'HGLG11' => [
+        'Type' => 'FII',
+    ],
+    'ALZR11' => [
+        'Type' => 'FII',
+    ],
+    'XPML11' => [
+        'Type' => 'FII',
+    ],
+    'XPLG11' => [
+        'Type' => 'FII',
+    ],
+    'CPTS11' => [
+        'Type' => 'FII',
+    ],
+    'CPTS11' => [
+        'Type' => 'FII',
+    ],
+    'BCIA11' => [
+        'Type' => 'FII',
+    ],
+    'VALE3' => [
+        'Type' => 'AÇÃO',
+    ],
+    'BBDC4' => [
+        'Type' => 'AÇÃO',
+    ],
+    'NDIV11' => [
+        'Type' => 'ETF',
+    ],
+    'IVV' => [
+        'Type' => 'ETF-US',
+    ],
+    'VNQ' => [
+        'Type' => 'ETF-US',
+    ],
+    'NOBL' => [
+        'Type' => 'ETF-US',
+    ],
+    'SCHD' => [
+        'Type' => 'ETF-US',
+    ],
+    'SPHQ' => [
+        'Type' => 'ETF-US',
+    ],
+    'SPHD' => [
+        'Type' => 'ETF-US',
+    ],
+];
+
+$Investidor10AsetTypeMap = [
+    'FII' => 'fiis',
+    'AÇÃO' => 'acoes',
+    'ETF-US' => 'etfs-global',
+    'ETF' => 'etfs',
+];
 
 $Result = [];
+$TimeLimit = strtotime("-1 year");
 
-$Result['NDIV11'] = [];
-$Result['NDIV11']['AnnualPayment'] = 0;
+foreach($Asets as $Ticker => $Infos){
 
-foreach($TableData as $Index => $Line){
+    $Investidor10Url = '';
+    $Investidor10Url .= 'https://investidor10.com.br/';
+    $Investidor10Url .= $Investidor10AsetTypeMap[$Infos['Type']].'/';
+    $Investidor10Url .= strtolower($Ticker).'/';
 
-    if(isset($TableData[$Index]['Data COM']))
-        unset($TableData[$Index]['Data COM']);
+    $Page = getPage($Investidor10Url);
 
-    $Pagamento = $TableData[$Index]['Pagamento'];
-
-    $DataParcial = explode('/', $TableData[$Index]['Pagamento']);
-    $TableData[$Index]['Pagamento'] = $DataParcial[1] . '/' . $DataParcial[0] . '/' . $DataParcial[2];
-    $TableData[$Index]['Pagamento'] = strtotime($TableData[$Index]['Pagamento'].' 00:00:00');
-    $TableData[$Index]['Valor'] = (float) str_replace(",",".",$TableData[$Index]['Valor']);
-
-    if($TableData[$Index]['Pagamento'] >= $Limit && $TableData[$Index]['Pagamento'] <= time()){
-        echo $Pagamento."\n";
-        $Result['NDIV11']['AnnualPayment'] = $Result['NDIV11']['AnnualPayment'] + $TableData[$Index]['Valor'];
+    if(empty($Page)){
+        echo"Error - $Ticker - $Investidor10Url\n";
+        continue;
     }
+
+    $TableData = parseTable($Page, "@class, 'table-dividends-history'");
+
+    $Result[$Ticker] = [];
+    $Result[$Ticker]['AnnualPayment'] = 0;
+
+    foreach($TableData as $Index => $Line){
+
+        if(isset($TableData[$Index]['Data COM']))
+            unset($TableData[$Index]['Data COM']);
+
+        $DataParcial = explode('/', $TableData[$Index]['Pagamento']);
+        $TableData[$Index]['Pagamento'] = $DataParcial[1] . '/' . $DataParcial[0] . '/' . $DataParcial[2];
+        $TableData[$Index]['Pagamento'] = strtotime($TableData[$Index]['Pagamento'].' 00:00:00');
+        $TableData[$Index]['Valor'] = (float) str_replace(",",".",$TableData[$Index]['Valor']);
+
+        if($TableData[$Index]['Pagamento'] >= $TimeLimit && $TableData[$Index]['Pagamento'] <= time()){
+            $Result[$Ticker]['AnnualPayment'] = $Result[$Ticker]['AnnualPayment'] + $TableData[$Index]['Valor'];
+        }
+
+    }
+
+    $Result[$Ticker]['MonthlyPayment'] = $Result[$Ticker]['AnnualPayment']/12;
+
+    sleep(1);
 
 }
 
-$Result['NDIV11']['MonthlyPayment'] = $Result['NDIV11']['AnnualPayment']/12;
-
-
-var_dump($Result);
+foreach($Result as $Ticker => $Infos){
+    echo $Ticker,' - '.$Infos['AnnualPayment'].' - '.$Infos['MonthlyPayment']."\n";
+}
 
 
 function parseTable (string $Page, string $TableQuery) : array {

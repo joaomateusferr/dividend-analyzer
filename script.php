@@ -72,7 +72,7 @@ $Taxes = [
     'ETF' => [
         'Dividendos' => 0.15,
     ],
-    'EETF-US' => [
+    'ETF-US' => [
         'Dividendos' => 0.3,
     ],
 
@@ -80,7 +80,6 @@ $Taxes = [
 
 $Result = [];
 $TimeLimit = strtotime("-1 year");
-$Net = true;
 
 foreach($Asets as $Ticker => $Infos){
 
@@ -111,22 +110,29 @@ foreach($Asets as $Ticker => $Infos){
         $TableData[$Index]['Pagamento'] = strtotime($TableData[$Index]['Pagamento'].' 00:00:00');
         $TableData[$Index]['Valor'] = (float) str_replace(",",".",$TableData[$Index]['Valor']);
 
-        if($Net){   //discount taxes
-
-        }
-
         if($TableData[$Index]['Pagamento'] >= $TimeLimit && $TableData[$Index]['Pagamento'] <= time()){
+
             $Result[$Ticker]['AnnualPayment'] = $Result[$Ticker]['AnnualPayment'] + $TableData[$Index]['Valor'];
+
+            if(isset($Taxes[$Infos['Type']][$TableData[$Index]['Tipo']])){
+                $Result[$Ticker]['NetAnnualPayment'] = $Result[$Ticker]['AnnualPayment'] * (1 - $Taxes[$Infos['Type']][$TableData[$Index]['Tipo']]);
+            } else {
+                $Result[$Ticker]['NetAnnualPayment'] = $Result[$Ticker]['AnnualPayment'];
+            }
+
         }
 
     }
 
-    sleep(rand(0, 3));
+    $Result[$Ticker]['AnnualPayment'] = round($Result[$Ticker]['AnnualPayment'], 3);
+    $Result[$Ticker]['NetAnnualPayment'] = round($Result[$Ticker]['NetAnnualPayment'], 3);
+
+    sleep(rand(0, 1));
 
 }
 
 foreach($Result as $Ticker => $Infos){
-    echo $Ticker,' - '.$Infos['AnnualPayment']."\n";
+    echo $Ticker,' - '.$Result[$Ticker]['NetAnnualPayment']."\n";
 }
 
 

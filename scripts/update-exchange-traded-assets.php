@@ -6,7 +6,7 @@ require_once dirname(__FILE__).'/../settings/configuration_file.php';
 
 try{
 
-    $CommonInformationConnection = new SQLite(SQLiteConstants::getDBFileName());
+    $CommonInformationConnection = new SQLite(SQLiteConstants::getDBFilePath());
 
     $Sql = 'SELECT iso_code FROM currencys WHERE iso_code = :iso_code';
     $Stmt = $CommonInformationConnection->prepare($Sql);

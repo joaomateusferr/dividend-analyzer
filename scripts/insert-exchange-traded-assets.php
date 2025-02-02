@@ -18,9 +18,27 @@ try{
 
     $CurrencyByType = $Exchanges = $Investidor10Assets = [];
 
+    $CommonInformationConnection = new SQLite(SQLiteConstants::getDBFilePath());
+
+    $Sql = 'SELECT rowid, CONCAT(ticker, asset_qualification_id) as FullTicker FROM exchange_traded_assets';
+    $Stmt = $CommonInformationConnection->prepare($Sql);
+    $Result = $Stmt->execute();
+
+    $ExchangeTradedAssetsAlreadyRegistered = [];
+
+    if($Result){
+
+        while($Row = $Stmt->fetch()){
+
+            $ExchangeTradedAssetsAlreadyRegistered[$Row['FullTicker']] = $Row['rowid'];
+
+        }
+
+    }
+
     foreach($Assets as $FullTicker => $Infos){
 
-        if(!isset($Infos['Type'])){
+        if(!isset($Infos['Type']) || isset($ExchangeTradedAssetsAlreadyRegistered[$FullTicker])){
 
             unset($Assets[$FullTicker]);
             continue;
@@ -64,7 +82,6 @@ try{
 
     }
 
-    $CommonInformationConnection = new SQLite(SQLiteConstants::getDBFileName());
     $Sql = 'SELECT rowid, identifier FROM asset_types WHERE identifier IN ("'.implode('","', $Types).'")';
     $Stmt = $CommonInformationConnection->prepare($Sql);
     $Result = $Stmt->execute();

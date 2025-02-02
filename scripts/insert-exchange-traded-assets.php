@@ -18,7 +18,7 @@ try{
 
     $CurrencyByType = $Exchanges = $Investidor10Assets = [];
 
-    $CommonInformationConnection = new SQLite(SQLiteConstants::getDBFilePath());
+    $CommonInformationConnection = new SQLite(SQLiteConstants::getDBFilePath('common-information'));
 
     $Sql = 'SELECT rowid, CONCAT(ticker, asset_qualification_id) as FullTicker FROM exchange_traded_assets';
     $Stmt = $CommonInformationConnection->prepare($Sql);

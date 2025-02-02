@@ -2,7 +2,7 @@
 
 require_once dirname(__FILE__).'/../../settings/configuration_file.php';
 
-$CommonInformationConnection = new SQLite(SQLiteConstants::getDBFilePath());
+$CommonInformationConnection = new SQLite(SQLiteConstants::getDBFilePath('common-information'));
 
 $Queries = [
     'CREATE TABLE financial_institutions (name TEXT NOT NULL, alias TEXT DEFAULT NULL)',

@@ -2,7 +2,7 @@
 
 class SQLite {
 
-    Private $DatabaseFileName = '';
+    Private $DatabaseFilePath = '';
     Private $PDO = null;
     Private $Options = [
         PDO::ATTR_TIMEOUT => 30, // Set timeout to 30s
@@ -12,12 +12,12 @@ class SQLite {
     ];
 
 
-    public function __construct(string $DatabaseFileName, array $Options = []) {
+    public function __construct(string $DatabaseFilePath, array $Options = []) {
 
-        if(empty($DatabaseFileName))
+        if(empty($DatabaseFilePath))
             throw new Exception('Empty database file name');
 
-        $this->DatabaseFileName = $DatabaseFileName;
+        $this->DatabaseFilePath = $DatabaseFilePath;
 
         if(!empty($Options))
             $this->Options = array_merge($this->Options, $Options); //Replace duplicates with $Options data
@@ -28,7 +28,7 @@ class SQLite {
 
     private function connect(){
 
-        $DSN = "sqlite:$this->DatabaseFileName";
+        $DSN = "sqlite:$this->DatabaseFilePath";
 
         try {
             $this->PDO = new PDO($DSN, '', '', $this->Options);

@@ -64,7 +64,7 @@ try{
 
     }
 
-    $CommonInformationConnection = new SQLite(SQLiteConstants::getDBFileName());
+    $CommonInformationConnection = new SQLite(SQLiteConstants::getDBFilePath());
     $Sql = 'SELECT rowid, identifier FROM asset_types WHERE identifier IN ("'.implode('","', $Types).'")';
     $Stmt = $CommonInformationConnection->prepare($Sql);
     $Result = $Stmt->execute();
@@ -82,6 +82,8 @@ try{
         }
 
     }
+
+    var_dump($IdByType);exit;
 
     if(empty($IdByType))
         exit("Empty IdByType!");
